@@ -1,17 +1,19 @@
 package com.task.application;
 
+import com.task.exception.ErrorCodeMessage;
+import com.task.exception.TaskException;
 import com.task.infrastructure.MemberRepository;
-import com.task.model.auth.dto.LoginDto;
-import com.task.model.auth.dto.TokenDto;
+import com.task.model.auth.dto.Login;
+import com.task.model.auth.Token;
 import com.task.model.member.Member;
-import com.task.model.member.dto.MemberRequestDto;
-import com.task.model.member.dto.MemberResponseDto;
+import com.task.model.member.dto.MemberRequest;
+import com.task.model.member.dto.MemberResponse;
 import com.task.model.member.mapper.MemberMapper;
 import com.task.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,31 +25,36 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AuthenticationManager authenticationManager;
 
     private final MemberRepository memberRepository;
 
     private final CustomMemberDetailsService customMemberDetailsService;
 
-    public TokenDto login(LoginDto loginDto) {
-        try {
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
+    private final PasswordEncoder passwordEncoder;
 
-            return TokenDto.builder()
+    public Token login(Login login) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword()));
+            return Token.builder()
                     .accessToken(jwtTokenProvider.createAccessToken(authentication))
                     .build();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new RuntimeException();
+            throw new TaskException(ErrorCodeMessage.INVALID_LOGIN);
         }
     }
 
 
-    public MemberResponseDto singUp(MemberRequestDto memberRequestDto) {
-        if (memberRepository.findByEmail(memberRequestDto.getEmail()) != null) {
-            throw new RuntimeException();
+    public MemberResponse singUp(MemberRequest memberRequest) {
+        if (memberRepository.findByEmail(memberRequest.getEmail()).isPresent()) {
+            throw new TaskException(ErrorCodeMessage.DUPLICATION_EMAIL);
         }
-        Member member = MemberMapper.toMember(memberRequestDto);
+        Member member = Member.builder()
+                .email(memberRequest.getEmail())
+                .password(passwordEncoder.encode(memberRequest.getPassword()))
+                .build();
 
         return MemberMapper.toResponse(memberRepository.save(member));
     }
