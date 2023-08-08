@@ -1,4 +1,4 @@
-package com.task.model.auth.dto;
+package com.task.model.auth;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Builder
-public class TokenDto {
+public class Token {
 
     private String accessToken;
 
-    public TokenDto(String accessToken) {
+    @Builder
+    public Token(String accessToken) {
         this.accessToken = accessToken;
     }
 }

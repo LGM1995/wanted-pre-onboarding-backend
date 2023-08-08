@@ -15,15 +15,17 @@ import java.util.Date;
 @Component
 @Slf4j
 public class JwtTokenProvider implements InitializingBean {
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 120; // 2시간
-
     private final String secret;
+
+    private final Long expireTime;
 
     private Key key;
 
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
+                            @Value("${jwt.expire-time}") Long expireTime) {
         this.secret = secret;
+        this.expireTime = expireTime;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class JwtTokenProvider implements InitializingBean {
                  .setSubject(principal.getUsername())
                  .signWith(key, SignatureAlgorithm.HS512)
                  .setIssuedAt(new Date())
-                 .setExpiration(new Date(System.currentTimeMillis() + 360000))
+                 .setExpiration(new Date(System.currentTimeMillis() + expireTime))
                  .compact();
      }
 

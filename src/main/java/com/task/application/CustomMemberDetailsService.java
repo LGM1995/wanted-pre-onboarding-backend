@@ -1,6 +1,8 @@
 package com.task.application;
 
 import com.task.infrastructure.MemberRepository;
+import com.task.model.member.Member;
+import com.task.security.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +18,8 @@ public class CustomMemberDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return null;
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 회원입니다. : " + email));
+        return MemberDetails.create(member);
     }
 }
