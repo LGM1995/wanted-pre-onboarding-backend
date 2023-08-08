@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class MemberResponseDto {
+public class MemberResponse {
 
     private Long id;
 
     private String email;
 
     @Builder
-    public MemberResponseDto(Long id, String email) {
+    public MemberResponse(Long id, String email) {
         this.id = id;
         this.email = email;
     }

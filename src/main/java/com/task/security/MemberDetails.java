@@ -13,7 +13,9 @@ public class MemberDetails implements UserDetails {
 
     public MemberDetails(Member member) { this.member = member; }
 
-
+    public static MemberDetails create(Member member) {
+        return new MemberDetails(member);
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
