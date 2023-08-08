@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class ExceptionResponseDto {
+public class ExceptionResponse {
 
     private final Integer code;
 
@@ -16,7 +16,7 @@ public class ExceptionResponseDto {
     private final Map<String, String> valid;
 
     @Builder
-    public ExceptionResponseDto(Integer code, String message, Map<String, String> valid) {
+    public ExceptionResponse(Integer code, String message, Map<String, String> valid) {
         this.code = code;
         this.message = message;
         this.valid = valid != null ? valid : new HashMap<>();
