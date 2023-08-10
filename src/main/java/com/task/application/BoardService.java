@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -44,12 +45,12 @@ public class BoardService {
                 .orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND)));
     }
 
-    public BoardResponse update(BoardRequest boardRequest) {
+    public BoardResponse update(Long id, BoardRequest boardRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
 
-        Board board = boardRepository.findById(boardRequest.getId())
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
 
         if (memberDetails.getMember() == board.getMember()) {
