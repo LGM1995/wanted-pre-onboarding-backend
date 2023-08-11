@@ -9,8 +9,11 @@ import com.task.model.board.dto.BoardResponse;
 import com.task.model.board.enums.BoardStatus;
 import com.task.model.board.mapper.BoardMapper;
 import com.task.security.MemberDetails;
+import java.awt.print.Pageable;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -75,5 +78,12 @@ public class BoardService {
             throw new TaskException(ErrorCodeMessage.BOARD_OWNER);
         }
         return BoardMapper.toResponse(board);
+    }
+
+    public List<BoardResponse> findByBoardByCreateDateDesc(Pageable pageable) {
+        Page<Board> boards = boardRepository.findByBoardByCreateDateDesc(pageable);
+        return boards.stream()
+                .map(BoardMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }
