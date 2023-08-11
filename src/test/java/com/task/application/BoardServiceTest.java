@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class BoardServiceTest {
@@ -63,8 +64,6 @@ public class BoardServiceTest {
                 .build();
         memberRepository.save(member);
 
-        Login login = new Login("test@test.com", password);
-
         UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -101,5 +100,124 @@ public class BoardServiceTest {
         Board target = boardRepository.findById(board.getId()).orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
 
         assertEquals(board.getMember().getEmail(), target.getMember().getEmail());
+    }
+
+    @Test
+    @DisplayName("Success Update")
+    @Transactional
+    void Success_Update() {
+        Board board = Board.builder()
+                .boardStatus(BoardStatus.POSTING)
+                .title("제목")
+                .content("내용")
+                .member(memberRepository.save(Member.builder()
+                        .email("test@test.com")
+                        .password("test1234!").build()))
+                .build();
+
+        boardRepository.save(board);
+
+        BoardRequest boardRequest = BoardRequest.builder()
+                .title("test")
+                .content("test content")
+                .build();
+
+        BoardResponse boardResponse = boardService.update(board.getId(), boardRequest);
+
+        assertEquals(board.getTitle(), boardResponse.getTitle());
+    }
+
+    @Test
+    @DisplayName("Unauthorized Update")
+    @Transactional
+    void Unauthorized_Update() {
+        Board board = Board.builder()
+                .boardStatus(BoardStatus.POSTING)
+                .title("제목")
+                .content("내용")
+                .member(memberRepository.save(Member.builder()
+                        .email("test@test.com")
+                        .password("test1234!").build()))
+                .build();
+
+        boardRepository.save(board);
+
+        String email = "unauthorized@test.com";
+        String password = "test1234!";
+        String encodingPassword = passwordEncoder.encode(password);
+
+        Member member = Member.builder()
+                .email(email)
+                .password(encodingPassword)
+                .build();
+        memberRepository.save(member);
+
+        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+
+        BoardRequest boardRequest = BoardRequest.builder()
+                .title("update")
+                .content("update content")
+                .build();
+
+
+        assertThrows(TaskException.class, () -> boardService.update(board.getId(), boardRequest));
+    }
+
+    @Test
+    @DisplayName("Success Delete")
+    @Transactional
+    void Success_Delete() {
+        Board board = Board.builder()
+                .boardStatus(BoardStatus.POSTING)
+                .title("제목")
+                .content("내용")
+                .member(memberRepository.save(Member.builder()
+                        .email("test@test.com")
+                        .password("test1234!").build()))
+                .build();
+
+        boardRepository.save(board);
+
+        boardService.delete(board.getId());
+
+        Board target = boardRepository.findById(board.getId()).orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
+
+        assertEquals(target.getBoardStatus(), BoardStatus.DELETE);
+    }
+
+    @Test
+    @DisplayName("Unauthorized Delete")
+    @Transactional
+    void Unauthorized_Delete() {
+        Board board = Board.builder()
+                .boardStatus(BoardStatus.POSTING)
+                .title("제목")
+                .content("내용")
+                .member(memberRepository.save(Member.builder()
+                        .email("test@test.com")
+                        .password("test1234!").build()))
+                .build();
+
+        boardRepository.save(board);
+
+        String email = "unauthorized@test.com";
+        String password = "test1234!";
+        String encodingPassword = passwordEncoder.encode(password);
+
+        Member member = Member.builder()
+                .email(email)
+                .password(encodingPassword)
+                .build();
+        memberRepository.save(member);
+
+
+        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+        assertThrows(TaskException.class, () -> boardService.delete(board.getId()));
     }
 }
