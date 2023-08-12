@@ -16,17 +16,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+
     @PostMapping
     public ResponseEntity<BoardResponse> post(@AuthenticationPrincipal MemberDetails memberDetails,
                                               @RequestBody BoardRequest boardRequest) {
         return ResponseEntity.ok(boardService.post(memberDetails.getMember().getId(), boardRequest));
     }
+
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardResponse> update(@AuthenticationPrincipal MemberDetails memberDetails,
                                                 @PathVariable Long boardId,
                                                 @RequestBody BoardRequest boardRequest) {
         return ResponseEntity.ok(boardService.update(memberDetails.getMember().getId(), boardId, boardRequest));
     }
+
     @DeleteMapping("/{boardId}")
     public ResponseEntity<BoardResponse> delete(@AuthenticationPrincipal MemberDetails memberDetails,
                                                 @PathVariable Long boardId) {

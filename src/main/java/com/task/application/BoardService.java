@@ -10,7 +10,9 @@ import com.task.model.board.dto.BoardResponse;
 import com.task.model.board.enums.BoardStatus;
 import com.task.model.board.mapper.BoardMapper;
 import com.task.model.member.Member;
+
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

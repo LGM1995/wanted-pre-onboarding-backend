@@ -12,7 +12,6 @@ public enum ErrorCodeMessage {
     MEMBER_NOT_FOUND(404, "존재하지 않는 회원입니다."),
     BOARD_OWNER(400, "본인의 게시글만 가능합니다."),
     BOARD_NOT_FOUND(404, "존재하지 않는 게시글입니다."),
-
     UN_AUTHORIZED(401, "잘못된 인증입니다.");
 
     private final int status;

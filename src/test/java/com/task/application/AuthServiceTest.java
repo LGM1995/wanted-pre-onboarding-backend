@@ -30,7 +30,9 @@ public class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @AfterEach
-    void clear() { memberRepository.deleteAll(); }
+    void clear() {
+        memberRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("Success SignUp")

@@ -24,8 +24,8 @@ Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkx
 Content-Type: application/json
 
 {
-  "title" : "수정합니다.",
-  "content" : "내용 수정합니다."
+  "title": "수정합니다.",
+  "content": "내용 수정합니다."
 }
 
 ### 게시글 삭제

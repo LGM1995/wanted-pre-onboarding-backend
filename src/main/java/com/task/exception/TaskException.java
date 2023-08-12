@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class TaskException extends RuntimeException{
+public class TaskException extends RuntimeException {
 
     private final ErrorCodeMessage errorCodeMessage;
 

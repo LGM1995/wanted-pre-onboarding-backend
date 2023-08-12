@@ -34,16 +34,16 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-     public String createAccessToken(Authentication authentication) {
-         MemberDetails principal = (MemberDetails) authentication.getPrincipal();
+    public String createAccessToken(Authentication authentication) {
+        MemberDetails principal = (MemberDetails) authentication.getPrincipal();
 
-         return Jwts.builder()
-                 .setSubject(principal.getUsername())
-                 .signWith(key, SignatureAlgorithm.HS512)
-                 .setIssuedAt(new Date())
-                 .setExpiration(new Date(System.currentTimeMillis() + expireTime))
-                 .compact();
-     }
+        return Jwts.builder()
+                .setSubject(principal.getUsername())
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expireTime))
+                .compact();
+    }
 
     public String getPayload(String token) {
         Claims claims = Jwts.parserBuilder()

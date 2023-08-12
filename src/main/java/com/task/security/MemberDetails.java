@@ -11,11 +11,14 @@ import java.util.Collection;
 public class MemberDetails implements UserDetails {
     private final Member member;
 
-    public MemberDetails(Member member) { this.member = member; }
+    public MemberDetails(Member member) {
+        this.member = member;
+    }
 
     public static MemberDetails create(Member member) {
         return new MemberDetails(member);
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
