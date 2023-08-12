@@ -23,13 +23,16 @@ public class BoardResponse {
 
     private LocalDateTime createDate;
 
+    private LocalDateTime updateDate;
+
     @Builder
-    public BoardResponse(Long id, String title, String content, String status, String writer, LocalDateTime createDate) {
+    public BoardResponse(Long id, String title, String content, String status, String writer, LocalDateTime createDate, LocalDateTime updateDate) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.status = status;
         this.writer = writer;
         this.createDate = createDate;
+        this.updateDate = updateDate;
     }
 }
