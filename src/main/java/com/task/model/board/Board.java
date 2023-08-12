@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 
@@ -44,8 +45,12 @@ public class Board extends BaseEntity {
     }
 
     public void update(String title, String content) {
-        this.title = title;
-        this.content = content;
+        if (StringUtils.hasText(title)) {
+            this.title = title;
+        }
+        if (StringUtils.hasText(content)) {
+            this.content = content;
+        }
     }
 
     public void delete() {
