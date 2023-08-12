@@ -3,32 +3,34 @@ package com.task.presentation;
 import com.task.application.BoardService;
 import com.task.model.board.dto.BoardRequest;
 import com.task.model.board.dto.BoardResponse;
-import java.awt.print.Pageable;
-import java.util.List;
+import com.task.security.MemberDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/board")
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
     @PostMapping
-    public ResponseEntity<BoardResponse> post(@RequestBody BoardRequest boardRequest) {
-        return ResponseEntity.ok(boardService.post(boardRequest));
+    public ResponseEntity<BoardResponse> post(@AuthenticationPrincipal MemberDetails memberDetails,
+                                              @RequestBody BoardRequest boardRequest) {
+        return ResponseEntity.ok(boardService.post(memberDetails.getMember().getId(), boardRequest));
     }
     @PutMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> update(@PathVariable Long boardId, @RequestBody BoardRequest boardRequest) {
-        return ResponseEntity.ok(boardService.update(boardId, boardRequest));
+    public ResponseEntity<BoardResponse> update(@AuthenticationPrincipal MemberDetails memberDetails,
+                                                @PathVariable Long boardId,
+                                                @RequestBody BoardRequest boardRequest) {
+        return ResponseEntity.ok(boardService.update(memberDetails.getMember().getId(), boardId, boardRequest));
     }
-    @PostMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> delete(@PathVariable Long boardId) {
-        return ResponseEntity.ok(boardService.delete(boardId));
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<BoardResponse> delete(@AuthenticationPrincipal MemberDetails memberDetails,
+                                                @PathVariable Long boardId) {
+        return ResponseEntity.ok(boardService.delete(memberDetails.getMember().getId(), boardId));
     }
 
     @GetMapping("/{boardId}")
@@ -37,7 +39,7 @@ public class BoardController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<BoardResponse>> list(Pageable pageable) {
-        return ResponseEntity.ok(boardService.findByBoardByCreateDateDesc(pageable));
+    public ResponseEntity<Page<BoardResponse>> list(Pageable pageable) {
+        return ResponseEntity.ok(boardService.findAll(pageable));
     }
 }
