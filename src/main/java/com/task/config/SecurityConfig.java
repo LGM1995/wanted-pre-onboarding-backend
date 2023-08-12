@@ -25,9 +25,8 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     private static final String[] AUTH_WHITELIST = {
-            "/",
+            "/auth/**",
             "/error",
-            "/v1/auth/**",
     };
 
     @Bean
