@@ -13,6 +13,7 @@ public class BoardMapper {
                 .status(board.getBoardStatus().getBoardStatus())
                 .writer(board.getMember().getEmail())
                 .createDate(board.getCreateDate())
+                .updateDate(board.getUpdateDate())
                 .build();
     }
 }
