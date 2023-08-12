@@ -10,15 +10,14 @@ import com.task.model.board.dto.BoardResponse;
 import com.task.model.board.enums.BoardStatus;
 import com.task.model.board.mapper.BoardMapper;
 import com.task.model.member.Member;
-
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,17 +29,14 @@ public class BoardService {
     private final MemberRepository memberRepository;
 
     public BoardResponse post(Long memberId, BoardRequest boardRequest) {
-
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
-        Board board = Board.builder()
+        return BoardMapper.toResponse(boardRepository.save(Board.builder()
                 .title(boardRequest.getTitle())
                 .content(boardRequest.getContent())
                 .boardStatus(BoardStatus.POSTING)
                 .member(member)
-                .build();
-
-        return BoardMapper.toResponse(boardRepository.save(board));
+                .build()));
     }
 
     public BoardResponse findById(Long id) {
@@ -49,33 +45,18 @@ public class BoardService {
     }
 
     public BoardResponse update(Long memberId, Long id, BoardRequest boardRequest) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
-
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
-
-        if (member == board.getMember()) {
-            board.update(boardRequest.getTitle(), boardRequest.getContent());
-            boardRepository.save(board);
-        } else {
-            throw new TaskException(ErrorCodeMessage.BOARD_OWNER);
-        }
+        Board board = checkBoardOwner(memberId, id);
+        board.update(boardRequest.getTitle(), boardRequest.getContent());
+        boardRepository.save(board);
         return BoardMapper.toResponse(board);
     }
 
     public BoardResponse delete(Long memberId, Long id) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
-
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
-
-        if (member == board.getMember()) {
-            board.delete();
-            boardRepository.save(board);
-        } else {
-            throw new TaskException(ErrorCodeMessage.BOARD_OWNER);
-        }
+        Board board = checkBoardOwner(memberId, id);
+        board.delete();
+        boardRepository.save(board);
         return BoardMapper.toResponse(board);
+
     }
 
     public Page<BoardResponse> findAll(Pageable pageable) {
@@ -84,4 +65,18 @@ public class BoardService {
                 .map(BoardMapper::toResponse)
                 .collect(Collectors.toList()));
     }
+
+    public Board checkBoardOwner(Long memberId, Long boardId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
+
+        if (member != board.getMember()) {
+            throw new TaskException(ErrorCodeMessage.BOARD_OWNER);
+        }
+
+        return board;
+    }
+
 }

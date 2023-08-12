@@ -29,8 +29,6 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
 
-    private final CustomMemberDetailsService customMemberDetailsService;
-
     private final PasswordEncoder passwordEncoder;
 
     public Token login(Login login) {
