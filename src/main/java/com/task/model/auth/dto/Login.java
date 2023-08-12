@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -11,7 +12,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class Login {
 
-    @Pattern(regexp = "@+", message = "@는 필수 값 입니다.")
+    @Email(message = "@는 필수 값 입니다.")
     @NotBlank(message = "이메일은 필수 입력값 입니다.")
     private String email;
 
