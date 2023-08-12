@@ -4,13 +4,13 @@ import com.task.exception.ErrorCodeMessage;
 import com.task.exception.TaskException;
 import com.task.infrastructure.BoardRepository;
 import com.task.infrastructure.MemberRepository;
-import com.task.model.auth.dto.Login;
 import com.task.model.board.Board;
 import com.task.model.board.dto.BoardRequest;
 import com.task.model.board.dto.BoardResponse;
 import com.task.model.board.enums.BoardStatus;
 import com.task.model.member.Member;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,9 +33,6 @@ public class BoardServiceTest {
 
     @Autowired
     private BoardRepository boardRepository;
-
-    @Autowired
-    private AuthService authService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -51,111 +49,113 @@ public class BoardServiceTest {
         memberRepository.deleteAll();
     }
 
-    @Test
-    @DisplayName("Success Posting Board")
-    void Success_Posting() {
-        String email = "test@test.com";
+    @BeforeEach
+    void createMember() {
         String password = "test1234!";
         String encodingPassword = passwordEncoder.encode(password);
 
         Member member = Member.builder()
-                .email(email)
+                .email("test@test.com")
                 .password(encodingPassword)
                 .build();
         memberRepository.save(member);
 
-        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
+        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(member.getEmail());
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+
+        Member unauthorized = Member.builder()
+                .email("unauthorized@test.com")
+                .password(encodingPassword)
+                .build();
+        memberRepository.save(unauthorized);
+
+    }
+
+    @Test
+    @DisplayName("Success Posting Board")
+    void Success_Posting() {
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
         String title = "제목";
         String content = "내용";
 
-        BoardResponse boardResponse = boardService.post(BoardRequest.builder()
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
                 .title(title)
                 .content(content)
                 .build());
 
         assertEquals(title, boardResponse.getTitle());
 
-        assertEquals(email, boardResponse.getWriter());
+        assertEquals(member.getEmail(), boardResponse.getWriter());
     }
 
     @Test
     @DisplayName("Success Detail")
     @Transactional
     void Success_Detail() {
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
-        Board board = Board.builder()
-                .boardStatus(BoardStatus.POSTING)
-                .title("제목")
-                .content("내용")
-                .member(memberRepository.save(Member.builder()
-                        .email("test@test.com")
-                        .password("test1234!").build()))
-                .build();
+        String title = "제목";
+        String content = "내용";
 
-        boardRepository.save(board);
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
+                .title(title)
+                .content(content)
+                .build());
 
-        Board target = boardRepository.findById(board.getId()).orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
+        BoardResponse target = boardService.findById(boardResponse.getId());
 
-        assertEquals(board.getMember().getEmail(), target.getMember().getEmail());
+        assertEquals(target.getId(), boardResponse.getId());
     }
 
     @Test
     @DisplayName("Success Update")
     @Transactional
     void Success_Update() {
-        Board board = Board.builder()
-                .boardStatus(BoardStatus.POSTING)
-                .title("제목")
-                .content("내용")
-                .member(memberRepository.save(Member.builder()
-                        .email("test@test.com")
-                        .password("test1234!").build()))
-                .build();
 
-        boardRepository.save(board);
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
+
+        String title = "제목";
+        String content = "내용";
+
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
+                .title(title)
+                .content(content)
+                .build());
 
         BoardRequest boardRequest = BoardRequest.builder()
                 .title("test")
                 .content("test content")
                 .build();
 
-        BoardResponse boardResponse = boardService.update(board.getId(), boardRequest);
+        BoardResponse updateResponse = boardService.update(member.getId(), boardResponse.getId(), boardRequest);
 
-        assertEquals(board.getTitle(), boardResponse.getTitle());
+        assertEquals(updateResponse.getTitle(), "test");
     }
 
     @Test
     @DisplayName("Unauthorized Update")
     @Transactional
     void Unauthorized_Update() {
-        Board board = Board.builder()
-                .boardStatus(BoardStatus.POSTING)
-                .title("제목")
-                .content("내용")
-                .member(memberRepository.save(Member.builder()
-                        .email("test@test.com")
-                        .password("test1234!").build()))
-                .build();
 
-        boardRepository.save(board);
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
-        String email = "unauthorized@test.com";
-        String password = "test1234!";
-        String encodingPassword = passwordEncoder.encode(password);
+        String title = "제목";
+        String content = "내용";
 
-        Member member = Member.builder()
-                .email(email)
-                .password(encodingPassword)
-                .build();
-        memberRepository.save(member);
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
+                .title(title)
+                .content(content)
+                .build());
 
-        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+        Member unauthorized = memberRepository.findByEmail("unauthorized@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
         BoardRequest boardRequest = BoardRequest.builder()
                 .title("update")
@@ -163,27 +163,29 @@ public class BoardServiceTest {
                 .build();
 
 
-        assertThrows(TaskException.class, () -> boardService.update(board.getId(), boardRequest));
+        assertThrows(TaskException.class, () -> boardService.update(unauthorized.getId(), boardResponse.getId(), boardRequest));
     }
 
     @Test
     @DisplayName("Success Delete")
     @Transactional
     void Success_Delete() {
-        Board board = Board.builder()
-                .boardStatus(BoardStatus.POSTING)
-                .title("제목")
-                .content("내용")
-                .member(memberRepository.save(Member.builder()
-                        .email("test@test.com")
-                        .password("test1234!").build()))
-                .build();
 
-        boardRepository.save(board);
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
-        boardService.delete(board.getId());
 
-        Board target = boardRepository.findById(board.getId()).orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
+        String title = "제목";
+        String content = "내용";
+
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        boardService.delete(member.getId(), boardResponse.getId());
+
+        Board target = boardRepository.findById(boardResponse.getId()).orElseThrow(() -> new TaskException(ErrorCodeMessage.BOARD_NOT_FOUND));
 
         assertEquals(target.getBoardStatus(), BoardStatus.DELETE);
     }
@@ -192,32 +194,22 @@ public class BoardServiceTest {
     @DisplayName("Unauthorized Delete")
     @Transactional
     void Unauthorized_Delete() {
-        Board board = Board.builder()
-                .boardStatus(BoardStatus.POSTING)
-                .title("제목")
-                .content("내용")
-                .member(memberRepository.save(Member.builder()
-                        .email("test@test.com")
-                        .password("test1234!").build()))
-                .build();
 
-        boardRepository.save(board);
+        Member member = memberRepository.findByEmail("test@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
-        String email = "unauthorized@test.com";
-        String password = "test1234!";
-        String encodingPassword = passwordEncoder.encode(password);
+        String title = "제목";
+        String content = "내용";
 
-        Member member = Member.builder()
-                .email(email)
-                .password(encodingPassword)
-                .build();
-        memberRepository.save(member);
+        BoardResponse boardResponse = boardService.post(member.getId(), BoardRequest.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        Member unauthorized = memberRepository.findByEmail("unauthorized@test.com")
+                .orElseThrow(() -> new TaskException(ErrorCodeMessage.MEMBER_NOT_FOUND));
 
 
-        UserDetails userDetails = customMemberDetailsService.loadUserByUsername(email);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-        assertThrows(TaskException.class, () -> boardService.delete(board.getId()));
+        assertThrows(TaskException.class, () -> boardService.delete(unauthorized.getId(), boardResponse.getId()));
     }
 }
