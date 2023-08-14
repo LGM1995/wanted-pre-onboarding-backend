@@ -2,7 +2,7 @@ package com.task.config;
 
 import com.task.security.JwtAccessDeniedHandler;
 import com.task.security.JwtAuthenticationEntryPoint;
-import com.task.security.JwtTokenAuthenticaionFilter;
+import com.task.security.JwtTokenAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtTokenAuthenticaionFilter jwtTokenAuthenticaionFilter;
+    private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated();
 
         http
-                .addFilterBefore(jwtTokenAuthenticaionFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
