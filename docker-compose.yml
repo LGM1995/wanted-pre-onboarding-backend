@@ -27,9 +27,9 @@ services:
     container_name: app-task
     environment:
       SPRING_DATASOURCE_URL:
-        jdbc:mysql://database:3306/task?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+        jdbc:mysql://database:3306/task?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: task
+      SPRING_DATASOURCE_PASSWORD: task
     networks:
       - mysql-task
 
