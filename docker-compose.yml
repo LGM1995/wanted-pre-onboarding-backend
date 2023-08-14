@@ -1,0 +1,37 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-task
+    restart: always
+    environment:
+      MYSQL_DATABASE: task
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Seoul
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/data:/var/lib/mysql
+    networks:
+      - mysql-task
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    container_name: app-task
+    environment:
+      SPRING_DATASOURCE_URL:
+        jdbc:mysql://database:3306/task?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - mysql-task
+
+networks:
+  mysql-task:
