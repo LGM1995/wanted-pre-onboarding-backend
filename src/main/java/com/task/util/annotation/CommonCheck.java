@@ -1,6 +1,6 @@
 package com.task.util.annotation;
 
-import com.task.util.validator.PasswordCheckValidator;
+import com.task.util.validator.CommonCheckValidator;
 
 import javax.validation.Constraint;
 import java.lang.annotation.ElementType;
@@ -10,14 +10,12 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {PasswordCheckValidator.class})
-public @interface PasswordCheck {
-    static int MIN = 8;
+@Constraint(validatedBy = CommonCheckValidator.class)
+public @interface CommonCheck {
 
-    String message() default "비밀번호는 " + MIN + "자리 이상입니다.";
+    String message() default "필수 값 입니다.";
 
     Class[] groups() default {};
 
     Class[] payload() default {};
-
 }
