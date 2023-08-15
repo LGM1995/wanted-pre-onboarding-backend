@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/board")
 @RequiredArgsConstructor
@@ -19,14 +21,14 @@ public class BoardController {
 
     @PostMapping
     public ResponseEntity<BoardResponse> post(@AuthenticationPrincipal MemberDetails memberDetails,
-                                              @RequestBody BoardRequest boardRequest) {
+                                              @RequestBody @Valid BoardRequest boardRequest) {
         return ResponseEntity.ok(boardService.post(memberDetails.getMember().getId(), boardRequest));
     }
 
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardResponse> update(@AuthenticationPrincipal MemberDetails memberDetails,
                                                 @PathVariable Long boardId,
-                                                @RequestBody BoardRequest boardRequest) {
+                                                @RequestBody @Valid BoardRequest boardRequest) {
         return ResponseEntity.ok(boardService.update(memberDetails.getMember().getId(), boardId, boardRequest));
     }
 
