@@ -11,18 +11,50 @@ Content-Type: application/json
   client.global.set("accessToken", response.body.accessToken);
 %}
 
-### 게시글 포스팅
+### 로그인2 (비인가 검사)
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "unauthorized@test.com",
+  "password": "test1234!"
+}
+
+> {%
+  client.global.set("unauthorized", response.body.accessToken);
+%}
+
+### 게시글 등록 성공
 POST http://localhost:8080/board
 Authorization: {{accessToken}}
 Content-Type: application/json
 
 {
-  "title": "안녕하세요.",
-  "content": "반갑습니다."
+  "title": "제목",
+  "content": "내용"
+}
+
+### 게시글 등록 실패(유효성 검사)
+POST http://localhost:8080/board
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "",
+  "content": ""
+}
+
+### 게시글 등록 실패(인증 오류)
+POST http://localhost:8080/board
+Content-Type: application/json
+
+{
+  "title": "제목",
+  "content": "내용"
 }
 
 ### 게시글 조회
-GET http://localhost:8080/board/list?size=2
+GET http://localhost:8080/board/list
 Authorization: {{accessToken}}
 Content-Type: application/json
 
@@ -31,8 +63,8 @@ GET http://localhost:8080/board/1
 Authorization: {{accessToken}}
 Content-Type: application/json
 
-### 게시글 수정
-PUT http://localhost:8080/board/2
+### 게시글 수정 성공
+PUT http://localhost:8080/board/1
 Authorization: {{accessToken}}
 Content-Type: application/json
 
@@ -41,7 +73,49 @@ Content-Type: application/json
   "content": "내용 수정합니다."
 }
 
-### 게시글 삭제
-DELETE http://localhost:8080/board/2
+### 게시글 수정 실패(유효성 검사)
+PUT http://localhost:8080/board/1
 Authorization: {{accessToken}}
 Content-Type: application/json
+
+{
+  "title": "",
+  "content": ""
+}
+
+### 게시글 수정 실패(없는 게시글)
+PUT http://localhost:8080/board/12341
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "수정합니다.",
+  "content": "내용 수정합니다."
+}
+
+
+### 게시글 수정 실패(비인가)
+PUT http://localhost:8080/board/1
+Authorization: {{unauthorized}}
+Content-Type: application/json
+
+{
+  "title": "수정합니다1.",
+  "content": "내용 수정합니다1."
+}
+
+### 게시글 삭제 성공
+DELETE http://localhost:8080/board/1
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+### 게시글 삭제 실패(없는 게시글)
+DELETE http://localhost:8080/board/12341
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+### 게시글 삭제 실패(비인가)
+DELETE http://localhost:8080/board/1
+Authorization: {{unauthorized}}
+Content-Type: application/json
+
