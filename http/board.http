@@ -1,6 +1,19 @@
+### 로그인
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "test1234!"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+%}
+
 ### 게시글 포스팅
 POST http://localhost:8080/board
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkxODA2MjI4LCJleHAiOjE2OTE4MDk4Mjh9.FqhLDuYyiiSL6Pen6mRH9_8hkK3tewjJnC6SDfHLRCiUAqaAyoXVrgkL81ttPsp49PBlJTHQ68uA8KdRBLx_qg
+Authorization: {{accessToken}}
 Content-Type: application/json
 
 {
@@ -9,18 +22,18 @@ Content-Type: application/json
 }
 
 ### 게시글 조회
-GET http://localhost:8080/board/list
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkxODA2MjI4LCJleHAiOjE2OTE4MDk4Mjh9.FqhLDuYyiiSL6Pen6mRH9_8hkK3tewjJnC6SDfHLRCiUAqaAyoXVrgkL81ttPsp49PBlJTHQ68uA8KdRBLx_qg
+GET http://localhost:8080/board/list?size=2
+Authorization: {{accessToken}}
 Content-Type: application/json
 
 ### 게시글 상세
 GET http://localhost:8080/board/1
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkxODA2MjI4LCJleHAiOjE2OTE4MDk4Mjh9.FqhLDuYyiiSL6Pen6mRH9_8hkK3tewjJnC6SDfHLRCiUAqaAyoXVrgkL81ttPsp49PBlJTHQ68uA8KdRBLx_qg
+Authorization: {{accessToken}}
 Content-Type: application/json
 
 ### 게시글 수정
 PUT http://localhost:8080/board/2
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkxODA2MjI4LCJleHAiOjE2OTE4MDk4Mjh9.FqhLDuYyiiSL6Pen6mRH9_8hkK3tewjJnC6SDfHLRCiUAqaAyoXVrgkL81ttPsp49PBlJTHQ68uA8KdRBLx_qg
+Authorization: {{accessToken}}
 Content-Type: application/json
 
 {
@@ -30,5 +43,5 @@ Content-Type: application/json
 
 ### 게시글 삭제
 DELETE http://localhost:8080/board/2
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjkxODA2MjI4LCJleHAiOjE2OTE4MDk4Mjh9.FqhLDuYyiiSL6Pen6mRH9_8hkK3tewjJnC6SDfHLRCiUAqaAyoXVrgkL81ttPsp49PBlJTHQ68uA8KdRBLx_qg
+Authorization: {{accessToken}}
 Content-Type: application/json
