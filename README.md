@@ -64,7 +64,7 @@
 
 * ## 구현한 API의 동작을 촬영한 데모 영상 링크
 
-[![Video Lable]](http://img.youtube.com/vi/DlVX_lk0Wr0/0.jpg)](https://youtu.be/watch?v=DlVX_lk0Wr0)
+[![Video Lable](http://img.youtube.com/vi/DlVX_lk0Wr0/0.jpg)](https://youtu.be/watch?v=DlVX_lk0Wr0)
 
 ---
 
